@@ -1,9 +1,8 @@
 // import statements
-import express from 'express';
-import bodyParser from 'body-parser';
-import morgan from 'morgan';
-import dotenv from 'dotenv';
-
+import express from "express";
+import bodyParser from "body-parser";
+import morgan from "morgan";
+import dotenv from "dotenv";
 
 // Load environment variables from a .env file
 dotenv.config();
@@ -13,20 +12,22 @@ const app = express();
 
 // Middleware setup
 app.use(bodyParser.json()); // Parse JSON requests
-app.unsubscribe(bodyParser.urlencoded({ extended: true })); // Parse URL-encoded requests
+app.use(bodyParser.urlencoded({ extended: true })); // Parse URL-encoded requests
 app.use(morgan("dev")); // Logging middleware
 
-// custom middleware
+// custom middlewares
+
+// setting the origin
 app.use((req, res, next) => {
-    console.log(`Request URL received for: ${req.url}`);
-    next();
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  next();
 });
+//for checking the request url logs
 
-// Routes
-app.get('/', (req, res) => {
-    res.send('Hello, world!');
+app.use((req, res, next) => {
+  console.log(`Request URL received for: ${req.url}`);
+  next();
 });
-
 
 // Error middleware for handling 404 errors
 app.use((req, res, next) => {
@@ -41,8 +42,14 @@ app.use((error, req, res, next) => {
   res.json({
     error: {
       message: error.message,
+      status: error.status || 500,
     },
   });
+});
+
+// Routes
+app.get("/", (req, res) => {
+  res.send("Hello, world!");
 });
 
 // Start the server
